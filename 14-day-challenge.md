@@ -200,4 +200,3 @@ Good luck and happy coding!
 
 ---
 
-Feel free to customize and expand the assignment as needed.
