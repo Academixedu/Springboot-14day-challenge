@@ -73,4 +73,131 @@ Share a screenshot of your running application in the comments along with any th
 Remember, the Spring Boot community is here to help. If you're stuck, don't hesitate to ask questions in the comments. Good luck, and happy coding!
 ```
 
-This 14-day structure covers the most crucial aspects of Spring Boot development while keeping the challenge more concise and achievable. Each day builds upon the previous ones, creating a comprehensive learning experience.
+### Day 2 Challenge: Create REST Endpoints
+
+Welcome to Day 2 of our 14-Day Spring Boot Challenge! Today, we'll dive into creating RESTful endpoints for a simple entity.
+
+#### Your Task:
+
+1. **Create a New Entity:**
+   - Define a new entity called `Book` with the following fields:
+     - `id` (Long)
+     - `title` (String)
+     - `author` (String)
+     - `isbn` (String)
+     - `publishedDate` (LocalDate)
+
+2. **Create a Book Controller:**
+   - Implement the following REST endpoints in your controller:
+     - `GET /books` - Retrieve a list of all books
+     - `GET /books/{id}` - Retrieve a single book by its ID
+     - `POST /books` - Create a new book
+     - `PUT /books/{id}` - Update an existing book by its ID
+     - `DELETE /books/{id}` - Delete a book by its ID
+
+3. **Implement Basic Service Layer:**
+   - Create a service layer that your controller will use to perform the necessary operations on the `Book` entity.
+   - For now, you can use a simple `List<Book>` to store the books in memory.
+
+4. **Test Your Endpoints:**
+   - Use tools like Postman or curl to test your endpoints and ensure they are working correctly.
+
+#### Example Code:
+
+**Book Entity:**
+```java
+@Entity
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String title;
+    private String author;
+    private String isbn;
+    private LocalDate publishedDate;
+
+    // Getters and setters
+}
+```
+
+**Book Controller:**
+```java
+@RestController
+@RequestMapping("/books")
+public class BookController {
+    private final BookService bookService;
+
+    @Autowired
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+    @GetMapping
+    public List<Book> getAllBooks() {
+        return bookService.getAllBooks();
+    }
+
+    @GetMapping("/{id}")
+    public Book getBookById(@PathVariable Long id) {
+        return bookService.getBookById(id);
+    }
+
+    @PostMapping
+    public Book createBook(@RequestBody Book book) {
+        return bookService.createBook(book);
+    }
+
+    @PutMapping("/{id}")
+    public Book updateBook(@PathVariable Long id, @RequestBody Book book) {
+        return bookService.updateBook(id, book);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+    }
+}
+```
+
+**Book Service:**
+```java
+@Service
+public class BookService {
+    private final List<Book> books = new ArrayList<>();
+
+    public List<Book> getAllBooks() {
+        return books;
+    }
+
+    public Book getBookById(Long id) {
+        return books.stream()
+                .filter(book -> book.getId().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+    }
+
+    public Book createBook(Book book) {
+        book.setId((long) (books.size() + 1));
+        books.add(book);
+        return book;
+    }
+
+    public Book updateBook(Long id, Book book) {
+        Book existingBook = getBookById(id);
+        existingBook.setTitle(book.getTitle());
+        existingBook.setAuthor(book.getAuthor());
+        existingBook.setIsbn(book.getIsbn());
+        existingBook.setPublishedDate(book.getPublishedDate());
+        return existingBook;
+    }
+
+    public void deleteBook(Long id) {
+        books.removeIf(book -> book.getId().equals(id));
+    }
+}
+```
+Good luck and happy coding!
+
+---
+
+Feel free to customize and expand the assignment as needed.
