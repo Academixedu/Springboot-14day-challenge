@@ -371,8 +371,35 @@ Good luck and happy coding!
 ---
 
 ### Day 3
++--------------------------------+
+|       Spring Boot App          |
+|                                |
+|  +--------------------------+  |
+|  |     Application Layer     |  |
+|  |   (Controllers/Services)  |  |
+|  +--------------------------+  |
+|              |                 |
+|  +--------------------------+  |
+|  |    Data Access Layer      |  |
+|  | (Repositories/Entities)   |  |
+|  +--------------------------+  |
+|              |                 |
+|   +------------------------+   |   +-------------------------+
+|   |    Spring Data JPA      |   |   |  Spring Data MongoDB    |
+|   |      (H2 Database)      |   |   |    (MongoDB Database)   |
+|   +------------------------+   |   +-------------------------+
+|                                |
++--------------------------------+
 
-Certainly! Below is the complete code for a simple Spring Boot application that integrates Spring Data JPA to manage a `Book` entity, including the `pom.xml`, application properties, entity, repository, service, and controller classes.
+     |                |
+     |                |
+     v                v
+
++------------------+       +--------------------------+
+|    H2 Database   |       |     MongoDB Database     |
+|  (In-Memory/Dev) |       | (Cloud/On-Prem/Prod)     |
++------------------+       +--------------------------+
+
 
 ### 1. `pom.xml`
 This `pom.xml` file includes dependencies for Spring Boot, Spring Data JPA, H2 Database, and testing.
