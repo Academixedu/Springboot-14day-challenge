@@ -371,6 +371,11 @@ Good luck and happy coding!
 ---
 
 ### Day 3
+
+Day 3: Integrate Spring Data JPA
+
+Task: a> Set up a database connection and implement basic CRUD operations using JPA repositories
+      b> Create Mongodb account (cloud free tier). And connect to Mongodb.
 +--------------------------------+
 |       Spring Boot App          |
 |                                |
