@@ -370,3 +370,289 @@ Good luck and happy coding!
 
 ---
 
+### Day 3
+
+Certainly! Below is the complete code for a simple Spring Boot application that integrates Spring Data JPA to manage a `Book` entity, including the `pom.xml`, application properties, entity, repository, service, and controller classes.
+
+### 1. `pom.xml`
+This `pom.xml` file includes dependencies for Spring Boot, Spring Data JPA, H2 Database, and testing.
+
+```xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.example</groupId>
+    <artifactId>bookstore</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.4</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <dependencies>
+        <!-- Spring Web Dependency -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Spring Data JPA Dependency -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- H2 Database Dependency -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Spring Boot Test Dependency -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### 2. `application.properties`
+This file configures the H2 in-memory database and enables the H2 console.
+
+```properties
+# H2 Database Configuration
+spring.datasource.url=jdbc:h2:mem:testdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+
+# Enable H2 Console
+spring.h2.console.enabled=true
+spring.h2.console.path=/h2-console
+```
+
+### 3. `Book.java`
+This is the `Book` entity class that represents the `books` table in the database.
+
+```java
+package com.example.bookstore.model;
+
+import javax.persistence.*;
+import java.time.LocalDate;
+
+@Entity
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String title;
+    private String author;
+    private String isbn;
+    private LocalDate publishedDate;
+
+    // Getters and setters
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getAuthor() {
+        return author;
+    }
+
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public LocalDate getPublishedDate() {
+        return publishedDate;
+    }
+
+    public void setPublishedDate(LocalDate publishedDate) {
+        this.publishedDate = publishedDate;
+    }
+}
+```
+
+### 4. `BookRepository.java`
+This is the JPA repository interface for the `Book` entity.
+
+```java
+package com.example.bookstore.repository;
+
+import com.example.bookstore.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+}
+```
+
+### 5. `BookService.java`
+This is the service layer that handles business logic for managing books.
+
+```java
+package com.example.bookstore.service;
+
+import com.example.bookstore.model.Book;
+import com.example.bookstore.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class BookService {
+
+    private final BookRepository bookRepository;
+
+    @Autowired
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+
+    public Book getBookById(Long id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+    }
+
+    public Book createBook(Book book) {
+        return bookRepository.save(book);
+    }
+
+    public Book updateBook(Long id, Book book) {
+        Book existingBook = getBookById(id);
+        existingBook.setTitle(book.getTitle());
+        existingBook.setAuthor(book.getAuthor());
+        existingBook.setIsbn(book.getIsbn());
+        existingBook.setPublishedDate(book.getPublishedDate());
+        return bookRepository.save(existingBook);
+    }
+
+    public void deleteBook(Long id) {
+        bookRepository.deleteById(id);
+    }
+}
+```
+
+### 6. `BookController.java`
+This is the controller that exposes RESTful endpoints for managing books.
+
+```java
+package com.example.bookstore.controller;
+
+import com.example.bookstore.model.Book;
+import com.example.bookstore.service.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    private final BookService bookService;
+
+    @Autowired
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+    @GetMapping
+    public List<Book> getAllBooks() {
+        return bookService.getAllBooks();
+    }
+
+    @GetMapping("/{id}")
+    public Book getBookById(@PathVariable Long id) {
+        return bookService.getBookById(id);
+    }
+
+    @PostMapping
+    public Book createBook(@RequestBody Book book) {
+        return bookService.createBook(book);
+    }
+
+    @PutMapping("/{id}")
+    public Book updateBook(@PathVariable Long id, @RequestBody Book book) {
+        return bookService.updateBook(id, book);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+    }
+}
+```
+
+### 7. `BookstoreApplication.java`
+This is the main class to run your Spring Boot application.
+
+```java
+package com.example.bookstore;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class BookstoreApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(BookstoreApplication.class, args);
+    }
+}
+```
+
+### Running the Application
+1. **Run the Application:**
+   - Use your IDE or the command line to run the Spring Boot application.
+   - If using the command line, run `mvn spring-boot:run`.
+
+2. **Access the H2 Console:**
+   - Visit `http://localhost:8080/h2-console` to access the H2 database console.
+   - Use the JDBC URL `jdbc:h2:mem:testdb`, username `sa`, and an empty password.
+
+3. **Test Endpoints:**
+   - You can use Postman or curl to interact with the REST API at `http://localhost:8080/books`.
+
+This setup provides a basic Spring Boot application with JPA integration. You can expand on it by adding more features, custom queries, and handling edge cases.
+
