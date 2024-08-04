@@ -688,3 +688,114 @@ public class BookstoreApplication {
 
 This setup provides a basic Spring Boot application with JPA integration. You can expand on it by adding more features, custom queries, and handling edge cases.
 
+
+##### Day#5 #####
+To add Swagger API documentation to your Spring Boot application, you can use Springfox or Springdoc OpenAPI. I'll demonstrate how to do it with Springdoc OpenAPI, which is a popular choice and easy to set up.
+
+### Step 1: Add the Springdoc OpenAPI Dependency
+
+First, add the Springdoc OpenAPI dependency to your `pom.xml`:
+
+```xml
+<dependencies>
+    <!-- Other dependencies -->
+
+    <!-- Springdoc OpenAPI dependency -->
+    <dependency>
+        <groupId>org.springdoc</groupId>
+        <artifactId>springdoc-openapi-ui</artifactId>
+        <version>1.7.0</version>
+    </dependency>
+</dependencies>
+```
+
+### Step 2: Access the Swagger UI
+
+Once you've added the dependency and started your Spring Boot application, the Swagger UI will be available at the following URL:
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
+### Step 3: Customize the API Documentation (Optional)
+
+You can customize the API documentation by using annotations. Here is an example with the provided `BookController.java`:
+
+#### Annotating the BookController
+
+```java
+package com.example.demo.controller;
+
+import com.example.demo.entity.Book;
+import com.example.demo.service.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.List;
+
+import javax.validation.Valid;
+
+@RestController
+@RequestMapping("/books")
+@Tag(name = "Books", description = "API for managing books")
+public class BookController {
+
+    private final BookService bookService;
+
+    @Autowired
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+    @Operation(summary = "Get all books")
+    @GetMapping
+    public List<Book> getAllBooks() {
+        return bookService.getAllBooks();
+    }
+
+    @Operation(summary = "Get a book by its ID")
+    @GetMapping("/{id}")
+    public Book getBookById(@PathVariable Long id) {
+        return bookService.getBookById(id);
+    }
+
+    @Operation(summary = "Create a new book")
+    @PostMapping
+    public ResponseEntity<Book> createBook(@Valid @RequestBody Book book) {
+        Book createdBook = bookService.createBook(book);
+        return new ResponseEntity<>(createdBook, HttpStatus.CREATED);
+    }
+
+    @Operation(summary = "Delete a book by its ID")
+    @DeleteMapping("/{id}")
+    public void deleteBook(@PathVariable Long id) {
+        bookService.deleteBook(id);
+    }
+}
+```
+
+### Step 4: Configure OpenAPI (Optional)
+
+You can customize the OpenAPI documentation in your `application.properties` or `application.yml`:
+
+#### Example with `application.yml`:
+
+```yaml
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+```
+
+### Final Step: Run Your Application
+
+After these changes, run your Spring Boot application. You should be able to see the Swagger UI by navigating to `http://localhost:8080/swagger-ui.html`, where you can interact with your API and see the documentation.
+
+
+### Day#6 ###
+
