@@ -798,4 +798,132 @@ After these changes, run your Spring Boot application. You should be able to see
 
 
 ### Day#6 ###
+### Day 6: Implement Basic Authentication Using Spring Security
 
+**Objective**: Secure your Spring Boot application's endpoints with username/password authentication using Spring Security.
+
+---
+
+### Step 1: Add Spring Security Dependency
+
+1. Open your `pom.xml` file.
+2. Add the Spring Security dependency as shown below:
+
+```xml
+<dependencies>
+    <!-- Other dependencies -->
+    
+    <!-- Spring Security Dependency -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    
+    <!-- Other dependencies -->
+</dependencies>
+```
+
+3. Save the `pom.xml` file.
+4. Reload the Maven project to ensure the dependency is added.
+
+---
+
+### Step 2: Create a Security Configuration Class
+
+1. In your project structure, create a new package called `com.example.demo.config` if it doesn't already exist.
+2. Inside the `config` package, create a new class named `SecurityConfig`.
+
+3. Add the following code to the `SecurityConfig` class:
+
+```java
+package com.example.demo.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+            .authorizeRequests()
+            .antMatchers("/books/**").authenticated()  // Secure all /books endpoints
+            .anyRequest().permitAll()  // Allow all other endpoints
+            .and()
+            .httpBasic();  // Enable Basic Authentication
+
+        return http.build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailsService() {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        manager.createUser(User.withUsername("user")
+            .password("{noop}password")  // {noop} is a password encoder that does nothing, just for testing
+            .roles("USER")
+            .build());
+        return manager;
+    }
+}
+```
+
+4. Save the `SecurityConfig` class.
+
+---
+
+### Step 3: Restart the Application
+
+1. Ensure the Spring Boot application is restarted to apply the new security configuration.
+2. Use the following command if you're running the application from the command line:
+
+```bash
+mvn spring-boot:run
+```
+
+---
+
+### Step 4: Test Authentication Using Postman
+
+1. Open Postman.
+2. Create a new request with the following details:
+   - **Method**: GET
+   - **URL**: `http://localhost:8080/books`
+
+3. Under the **Authorization** tab:
+   - Select **Basic Auth** as the type.
+   - Enter the username as `user`.
+   - Enter the password as `password`.
+
+4. Click **Send** to make the request.
+
+5. You should receive a `200 OK` response with the list of books. If the credentials are incorrect, you will receive a `401 Unauthorized` response.
+
+---
+
+### Step 5: Verify Unauthenticated Access to Other Endpoints
+
+1. In Postman, change the URL to an endpoint that does not require authentication (e.g., `http://localhost:8080/`).
+2. Remove the Authorization header by selecting **No Auth** under the **Authorization** tab.
+3. Click **Send**.
+
+4. You should receive a `200 OK` response if the endpoint is publicly accessible.
+
+---
+
+### Summary
+
+- **Added Security Dependency**: Introduced Spring Security into the project.
+- **Created Security Config**: Defined a security configuration to secure the `/books/**` endpoints.
+- **Tested Basic Authentication**: Verified the security configuration using Postman.
+
+---
+
+With this setup, your application now has basic username/password authentication implemented, securing your specified endpoints.
