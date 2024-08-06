@@ -21,7 +21,7 @@
 7. **Day 7:** Write unit and integration tests
    - Task: Create tests for your service layer and REST endpoints
 
-8. **Day 8:** Implement caching
+8. **Day 8:** Write unit and integration tests continued & Implement caching
    - Task: Use Spring's caching abstraction to cache responses from a slow operation
 
 9. **Day 9:** Create scheduled tasks
